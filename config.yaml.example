@@ -66,4 +66,6 @@ display:
 memory:
   db_path: data/limi.db
 
+network:
+  proxy: ""                   # VPN client, e.g. http://127.0.0.1:10809 (or env LIMI_PROXY)
 sounds_dir: sounds

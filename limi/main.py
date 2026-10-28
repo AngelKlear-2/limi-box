@@ -16,6 +16,7 @@ from limi.config import Config, ConfigError, load_config, resolve_path
 from limi.dialog import Dialog, DialogReply
 from limi.llm.base import ProviderUnavailable
 from limi.logutil import setup_logging
+from limi.net import configure_proxy
 from limi.state import Mood, SharedState, State
 from limi.stt.base import STTProvider
 from limi.text import detect_language, lang_code
@@ -264,6 +265,7 @@ def build_assistant(cfg: Config, shared: SharedState) -> Assistant:
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     redactor = setup_logging(logging.DEBUG if args.debug else logging.INFO)
+    configure_proxy(None)  # fix scheme-less proxy env vars before any client is created
 
     if args.demo_face:
         return run_face_demo(args)
@@ -274,6 +276,9 @@ def main(argv: list[str] | None = None) -> int:
         _print_problems(exc.problems)
         return 2
     redactor.add(*cfg.secrets())
+    proxy = configure_proxy(cfg.network.proxy)
+    if proxy:
+        log.info("Using proxy %s for network calls", proxy)
     log.info("Starting %s: %s", cfg.name, cfg.describe())
 
     shared = SharedState()

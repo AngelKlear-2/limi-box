@@ -126,6 +126,13 @@ class MemoryConfig:
 
 
 @dataclass
+class NetworkConfig:
+    # VPN/proxy client address, e.g. http://127.0.0.1:10809 (Happ, v2rayN HTTP port).
+    # Scheme-less values like 127.0.0.1:10809 are fixed automatically. Env LIMI_PROXY wins.
+    proxy: str = ""
+
+
+@dataclass
 class Config:
     name: str = "Limi"
     language: str = "ru-RU"
@@ -138,6 +145,7 @@ class Config:
     behavior: BehaviorConfig = field(default_factory=BehaviorConfig)
     display: DisplayConfig = field(default_factory=DisplayConfig)
     memory: MemoryConfig = field(default_factory=MemoryConfig)
+    network: NetworkConfig = field(default_factory=NetworkConfig)
     sounds_dir: str = "sounds"
 
     def secrets(self) -> list[str]:
