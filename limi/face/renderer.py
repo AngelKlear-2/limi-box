@@ -38,6 +38,7 @@ class FaceParams:
     ring: float = 0.0  # listening ring visibility
     dots: float = 0.0  # thinking dots visibility
     zzz: float = 0.0  # sleep letters visibility
+    ears: float = 1.0  # cat ear height: perked up when listening, flat when asleep
 
 
 class FaceModel:
@@ -72,9 +73,9 @@ class FaceModel:
         g["mouth_curve"] = 0.1  # neutral face has a faint smile
 
         if state is State.SLEEP:
-            g.update(eye_open=0.0, mouth_w=0.5, zzz=1.0)
+            g.update(eye_open=0.0, mouth_w=0.5, zzz=1.0, ears=0.4)
         elif state in (State.LISTENING, State.AWAIT_CONFIRM):
-            g.update(eye_open=1.25, eye_w=1.15, ring=1.0)
+            g.update(eye_open=1.25, eye_w=1.15, ring=1.0, ears=1.3)
         elif state is State.THINKING:
             g.update(eye_open=0.95, dots=1.0, pupil_x=0.7 * math.sin(t * 2.2), pupil_y=-0.4)
         elif state is State.SPEAKING:
@@ -142,6 +143,8 @@ PUPIL = (18, 24, 40)
 LINE = (150, 200, 255)
 MOUTH_IN = (70, 20, 35)
 ACCENT = (120, 220, 255)
+EAR_OUT = (60, 70, 100)
+EAR_IN = (255, 140, 180)
 EYE_X = (0.30, 0.70)
 EYE_Y = 0.40
 
@@ -223,8 +226,8 @@ class FaceRenderer:
         pg, s = self._pg, self._screen
         w, h = s.get_size()
         s.fill(BG)
+        self._draw_ears(p, w, h)
         self._draw_eyes(p, w, h)
-        self._draw_brows(p, w, h)
         self._draw_mouth(p, w, h)
         self._draw_ring(p, w, h, t)
         self._draw_dots(p, w, h, t)
@@ -254,17 +257,21 @@ class FaceRenderer:
             py = cy + p.pupil_y * max(0.0, eh / 2 - radius) * 0.9
             pg.draw.circle(s, PUPIL, (int(px), int(py)), radius)
 
-    def _draw_brows(self, p: FaceParams, w: int, h: int) -> None:
+    def _draw_ears(self, p: FaceParams, w: int, h: int) -> None:
+        """Cat ears on top of the head, one triangle per side with a pink inner part."""
         pg, s = self._pg, self._screen
-        base_y = (EYE_Y - 0.17) * h + p.eye_y * 0.04 * h - p.brow_raise * 0.05 * h
-        half = 0.10 * w
-        for idx, fx in enumerate(EYE_X):
+        base_y = 0.27 * h
+        top_y = base_y - 0.19 * h * max(p.ears, 0.05)
+        for fx in EYE_X:
+            sign = -1 if fx < 0.5 else 1  # ears point outward
             cx = fx * w
-            inner = 1 if idx == 0 else -1  # which way is 'toward the nose'
-            y = base_y - (p.brow_asym * 0.05 * h if idx == 0 else 0.0)
-            inner_pt = (cx + inner * half, y - p.brow_tilt * 0.06 * h)
-            outer_pt = (cx - inner * half, y + p.brow_tilt * 0.03 * h)
-            pg.draw.line(s, LINE, inner_pt, outer_pt, max(3, int(0.012 * w)))
+            outer = [(cx + sign * 0.11 * w, base_y), (cx + sign * 0.05 * w, top_y), (cx - sign * 0.05 * w, base_y)]
+            pg.draw.polygon(s, EAR_OUT, outer)
+            pg.draw.polygon(s, LINE, outer, max(2, int(0.008 * w)))
+            gx = sum(x for x, _ in outer) / 3
+            gy = sum(y for _, y in outer) / 3
+            inner = [(gx + 0.55 * (x - gx), gy + 0.55 * (y - gy)) for x, y in outer]
+            pg.draw.polygon(s, EAR_IN, inner)
 
     def _draw_mouth(self, p: FaceParams, w: int, h: int) -> None:
         pg, s = self._pg, self._screen

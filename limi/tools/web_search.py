@@ -2,10 +2,32 @@
 
 from __future__ import annotations
 
+import logging
+import time
+from typing import Any
+
 from limi.tools.base import Tool, object_schema
+
+log = logging.getLogger("limi.search")
 
 MAX_RESULTS = 3
 SNIPPET_CHARS = 300
+ATTEMPTS = 2  # one retry, DuckDuckGo rate-limits now and then
+RETRY_DELAY_S = 1.5
+
+
+def _search_class() -> Any:
+    """Prefer the renamed 'ddgs' package, fall back to 'duckduckgo_search'."""
+    try:
+        from ddgs import DDGS
+        return DDGS
+    except ImportError:
+        pass
+    try:
+        from duckduckgo_search import DDGS
+        return DDGS
+    except ImportError:
+        return None
 
 
 def web_search(query: str) -> str:
@@ -13,24 +35,31 @@ def web_search(query: str) -> str:
     query = str(query).strip()
     if not query:
         return "error: empty search query"
-    try:
-        from duckduckgo_search import DDGS
-    except ImportError:
+    ddgs_cls = _search_class()
+    if ddgs_cls is None:
+        log.error("no search package installed, run: pip install ddgs")
+        return "error: search package not installed (pip install ddgs)"
+    log.info("search: %r", query)
+    last_error = ""
+    for attempt in range(1, ATTEMPTS + 1):
         try:
-            from ddgs import DDGS  # type: ignore[no-redef]  # the package's newer name
-        except ImportError:
-            return "error: duckduckgo_search is not installed"
-    try:
-        results = list(DDGS().text(query, max_results=MAX_RESULTS))
-    except Exception as exc:  # network errors, rate limits...
-        return f"search failed: {exc}"
-    if not results:
-        return "no results found"
-    lines = []
-    for i, item in enumerate(results[:MAX_RESULTS], 1):
-        body = str(item.get("body", ""))[:SNIPPET_CHARS]
-        lines.append(f"{i}. {item.get('title', '')}: {body}")
-    return "\n".join(lines)
+            results = list(ddgs_cls().text(query, max_results=MAX_RESULTS))
+        except Exception as exc:  # network errors, rate limits...
+            last_error = str(exc)
+            log.warning("search attempt %d failed: %s", attempt, exc)
+            if attempt < ATTEMPTS:
+                time.sleep(RETRY_DELAY_S)
+            continue
+        if not results:
+            log.info("search: no results for %r", query)
+            return "no results found"
+        log.info("search: %d results for %r", len(results), query)
+        lines = []
+        for i, item in enumerate(results[:MAX_RESULTS], 1):
+            body = str(item.get("body", ""))[:SNIPPET_CHARS]
+            lines.append(f"{i}. {item.get('title', '')}: {body}")
+        return "\n".join(lines)
+    return f"search failed: {last_error}"
 
 
 TOOL = Tool(

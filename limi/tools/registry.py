@@ -35,12 +35,15 @@ class ToolRegistry:
         missing = [k for k in tool.parameters.get("required", []) if k not in args]
         if missing:
             return ToolResult(f"error: tool '{name}' is missing arguments: {', '.join(missing)}")
+        log.info("tool %s %s", name, args)
         try:
             out = tool.func(**{k: v for k, v in args.items() if k in props})
         except Exception as exc:  # a broken tool must not break the conversation
             log.exception("tool %s failed", name)
             return ToolResult(f"error: tool '{name}' failed: {exc}")
-        return out if isinstance(out, ToolResult) else ToolResult(str(out))
+        result = out if isinstance(out, ToolResult) else ToolResult(str(out))
+        log.info("tool %s -> %s", name, result.text[:120].replace("\n", " | "))
+        return result
 
 
 def build_registry(store: MemoryStore, music: MusicProvider) -> ToolRegistry:
