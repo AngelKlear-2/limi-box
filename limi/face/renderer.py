@@ -276,7 +276,8 @@ class FaceRenderer:
         top, bottom = [], []
         for i in range(n + 1):
             x = cx - half + 2 * half * i / n
-            u = (x - cx) / half if half else 0.0
+            # float drift can push |u| a hair past 1; clamp so (1-u*u)**0.6 never sees a negative base
+            u = max(-1.0, min(1.0, (x - cx) / half)) if half else 0.0
             y = cy + curve * (1 - u * u)
             top.append((x, y))
             bottom.append((x, y + opening * (1 - u * u) ** 0.6))

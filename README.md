@@ -80,6 +80,9 @@ llm:
 - PowerShell: `$env:LIMI_API_KEY = "твой_ключ"`
 - Linux / Pi: `export LIMI_API_KEY="твой_ключ"`
 
+**OpenRouter:** `base_url: https://openrouter.ai/api/v1`, в `model` имя модели с сайта openrouter.ai (например `openai/gpt-4o-mini`). Ключ можно задать в `OPENROUTER_API_KEY`:
+- PowerShell: `$env:OPENROUTER_API_KEY = "твой_ключ"`
+
 **Anthropic:** `llm.provider: anthropic`, поле `llm.anthropic.model`, ключ в `ANTHROPIC_API_KEY`.
 
 Ключи нигде не пишутся в лог (маскируются). Не коммить `config.yaml` и `.env`: они в `.gitignore`.

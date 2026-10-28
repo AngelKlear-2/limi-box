@@ -304,8 +304,12 @@ def validate(cfg: Config) -> list[str]:
 def _apply_env(cfg: Config) -> None:
     """Environment variables win over config.yaml for secrets."""
     api_key = os.environ.get("LIMI_API_KEY")
+    openrouter_key = os.environ.get("OPENROUTER_API_KEY")
     if api_key:
         cfg.llm.api.api_key = api_key
+    elif openrouter_key and "openrouter.ai" in cfg.llm.api.base_url:
+        # OpenRouter's own variable, used only when base_url points at OpenRouter
+        cfg.llm.api.api_key = openrouter_key
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     if anthropic_key:
         cfg.llm.anthropic.api_key = anthropic_key
