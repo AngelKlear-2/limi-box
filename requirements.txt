@@ -1,0 +1,19 @@
+# Core dependencies (PC / development). Version ranges, not exact pins:
+# they were not install-tested in the build environment, see README.
+pygame>=2.5,<3
+pyyaml>=6,<7
+numpy>=1.26,<3
+sounddevice>=0.4.6,<0.6
+openai>=1.40,<3
+anthropic>=0.40,<1
+duckduckgo_search>=6,<10
+faster-whisper>=1.0,<2
+SpeechRecognition>=3.10,<4   # stt.provider: google (dev)
+gTTS>=2.5,<3                 # tts.provider: gtts (dev)
+
+# Optional extras, install only what you use (see README):
+#   pip install llama-cpp-python   # llm.provider: local_gguf
+#   pip install piper-tts          # tts.provider: piper_local
+#   pip install openwakeword       # wake.backend: openwakeword
+#   pip install torch              # tts.provider: silero_local (heavy)
+#   pip install pytest             # run the tests

@@ -1,0 +1,14 @@
+# Lighter set for Raspberry Pi 4/5 (64-bit OS). Use the 'api' LLM provider,
+# or build llama-cpp-python yourself for a small local model (see README).
+# Version ranges were not install-tested on a Pi.
+pygame>=2.5,<3
+pyyaml>=6,<7
+numpy>=1.26,<3
+sounddevice>=0.4.6,<0.6
+openai>=1.40,<3
+duckduckgo_search>=6,<10
+faster-whisper>=1.0,<2     # use stt.whisper_model: tiny or base
+piper-tts>=1.2,<2
+# anthropic>=0.40,<1       # only if llm.provider: anthropic
+# openwakeword             # optional, cheaper than STT wake matching
+# system packages: sudo apt install libportaudio2 libsdl2-dev

@@ -1,0 +1,18 @@
+# models and user data
+models/*.gguf
+models/**/*.gguf
+models/**/*.onnx
+models/**/*.onnx.json
+data/
+
+# secrets and local config
+config.yaml
+.env
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/

@@ -1,0 +1,66 @@
+# Copy to config.yaml and edit. config.yaml is gitignored.
+# Secrets can come from the environment instead: LIMI_API_KEY, ANTHROPIC_API_KEY (env wins).
+
+name: Limi
+language: ru-RU            # ru-RU | en-US | auto (auto = detect between stt.auto_languages)
+wake_words: [limi, лими]   # matched case-insensitively
+
+stt:
+  provider: whisper_local     # whisper_local | google
+  whisper_model: small        # tiny | base | small | medium ... (use tiny/base on a Raspberry Pi)
+  whisper_device: auto        # auto | cpu | cuda
+  whisper_compute_type: int8
+  auto_languages: [ru, en]    # used when language is auto
+
+tts:
+  provider: piper_local       # piper_local | silero_local | gtts
+  piper_voice: models/tts/ru_RU-irina-medium.onnx
+  silero_speaker: xenia
+
+llm:
+  provider: local_gguf        # local_gguf | api | anthropic
+  local_gguf:
+    model_path: models/llm/model.gguf
+    n_ctx: 4096
+    n_gpu_layers: 0
+  api:
+    base_url: https://api.openai.com/v1   # also DeepSeek, OpenRouter, Ollama, LM Studio...
+    model: gpt-4o-mini
+    api_key: ""               # or env LIMI_API_KEY
+  anthropic:
+    model: claude-sonnet-5-5
+    api_key: ""               # or env ANTHROPIC_API_KEY
+  temperature: 0.7
+  history_len: 20             # last N messages sent to the model
+  max_tokens: 400
+  max_tool_rounds: 2
+  system_prompt_path: prompts/system.txt
+
+wake:
+  backend: auto               # auto | openwakeword | stt
+  openwakeword_model: ""      # path to a custom .onnx wake word model (optional)
+  threshold: 0.5
+  stt_match_ratio: 0.75       # fuzzy matching strength for the stt backend
+
+audio:
+  input_device: ""            # sounddevice index or name; empty = system default
+  output_device: ""
+  vad_min_rms: 250            # raise in noisy rooms, lower for a quiet mic
+  end_silence_s: 0.8
+
+behavior:
+  sleep_after_s: 30
+  listen_timeout_s: 8
+  max_utterance_s: 15
+  confirm_timeout_s: 15
+  interrupt_on_wake: true     # saying the wake word stops the answer (use a headset or openWakeWord to avoid echo)
+
+display:
+  width: 480
+  height: 320
+  fullscreen: false           # true on the Raspberry Pi
+
+memory:
+  db_path: data/limi.db
+
+sounds_dir: sounds
