@@ -30,6 +30,10 @@ def build_tts(cfg: Config) -> TTSProvider:
         from limi.tts.gtts import GTTSProvider
 
         return GTTSProvider()
+    if cfg.tts.provider == "xvibe_local":
+        from limi.tts.xvibe_local import XVibeLocalTTS
+
+        return XVibeLocalTTS(cfg.tts.xvibe_voice)
     if cfg.tts.provider == "silero_local":
         from limi.tts.silero_local import SileroLocalTTS
 

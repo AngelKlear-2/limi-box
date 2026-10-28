@@ -13,7 +13,8 @@ stt:
   auto_languages: [ru, en]    # used when language is auto
 
 tts:
-  provider: piper_local       # piper_local | silero_local | gtts
+  provider: xvibe_local       # xvibe_local | piper_local | silero_local | gtts
+  xvibe_voice: male_deep      # male_deep | female_silky | male_authoritative, or path to a 1-30 s WAV
   piper_voice: models/tts/ru_RU-irina-medium.onnx
   silero_speaker: xenia
 

@@ -31,11 +31,16 @@ Limi — голосовой ассистент для дома с анимиро
 5. Если ты используешь `llm.provider: local_gguf`, см. раздел про GGUF ниже. Для облачного API см. раздел про API.
 6. Для первого запуска без больших моделей поставь в `config.yaml`:
    - `stt.provider: google` (нужен интернет),
-   - `tts.provider: gtts` (нужен интернет).
+   - `tts.provider: gtts` (нужен интернет), если не хочешь ставить xVibePocketTTS или PyTorch.
 
 Опциональные пакеты:
 - `llama-cpp-python` на Windows собирается из исходников и требует Visual Studio Build Tools (компонент «Разработка классических приложений на C++»). Для первого запуска его можно пропустить.
-- `piper-tts` ставится через `pip install piper-tts`. Голос Piper (`.onnx` и `.onnx.json`) скачай отдельно и положи в `models/tts/`.
+- **Голос по умолчанию: xVibePocketTTS** (`tts.provider: xvibe_local`). Русская модель от GenVoice, работает на CPU, умеет клонировать голос по WAV-образцу 1–30 с. Ставится из git, на PyPI её нет. Нужен Python 3.10–3.13 (на 3.13 проверено) и интернет при первом запуске, чтобы скачать модель с Hugging Face:
+  ```powershell
+  pip install git+https://github.com/GenVoice/xVibePocketTTS
+  ```
+  Установка тянет PyTorch (несколько сотен МБ). Голос выбирается в `tts.xvibe_voice`: `male_deep`, `female_silky`, `male_authoritative` или путь к своему WAV.
+- Альтернатива: `tts.provider: piper_local` (лёгкий, подходит для Pi). `piper-tts` ставится через `pip install piper-tts`, голос `.onnx` и `.onnx.json` положи в `models/tts/`.
 
 ## Установка на Linux / Raspberry Pi
 

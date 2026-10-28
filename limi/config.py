@@ -23,7 +23,7 @@ DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 log = logging.getLogger("limi.config")
 
 STT_PROVIDERS = ("whisper_local", "google")
-TTS_PROVIDERS = ("piper_local", "silero_local", "gtts")
+TTS_PROVIDERS = ("xvibe_local", "piper_local", "silero_local", "gtts")
 LLM_PROVIDERS = ("local_gguf", "api", "anthropic")
 WAKE_BACKENDS = ("auto", "openwakeword", "stt")
 
@@ -48,7 +48,8 @@ class STTConfig:
 
 @dataclass
 class TTSConfig:
-    provider: str = "piper_local"
+    provider: str = "xvibe_local"
+    xvibe_voice: str = "male_deep"  # built-in voice name or path to a WAV sample
     piper_voice: str = "models/tts/ru_RU-irina-medium.onnx"
     silero_speaker: str = "xenia"
 
@@ -246,6 +247,9 @@ def validate(cfg: Config) -> list[str]:
     _choice(p, "stt.provider", cfg.stt.provider, STT_PROVIDERS)
     _choice(p, "wake.backend", cfg.wake.backend, WAKE_BACKENDS)
 
+    if cfg.tts.provider == "xvibe_local" and cfg.tts.xvibe_voice not in ("male_deep", "female_silky", "male_authoritative"):
+        if not resolve_path(cfg.tts.xvibe_voice).is_file():
+            p.append(f"tts.xvibe_voice: not a built-in voice and file not found: {cfg.tts.xvibe_voice}")
     if _choice(p, "tts.provider", cfg.tts.provider, TTS_PROVIDERS) and cfg.tts.provider == "piper_local":
         voice = resolve_path(cfg.tts.piper_voice)
         if not voice.is_file():

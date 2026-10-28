@@ -10,6 +10,8 @@ duckduckgo_search>=6,<10
 faster-whisper>=1.0,<2
 SpeechRecognition>=3.10,<4   # stt.provider: google (dev)
 gTTS>=2.5,<3                 # tts.provider: gtts (dev)
+# tts.provider: xvibe_local (default). Not on PyPI, install from git, see README:
+#   pip install git+https://github.com/GenVoice/xVibePocketTTS
 
 # Optional extras, install only what you use (see README):
 #   pip install llama-cpp-python   # llm.provider: local_gguf
